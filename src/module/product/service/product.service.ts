@@ -80,14 +80,17 @@ export class ProductService {
     });
   }
 
-  async delete(slug: string, gsic: string): Promise<DeleteResult> {
-    const product = await this.productModel.findOne({ slug, gsic });
+  async delete(slug: string, gsic: string): Promise<DeleteResult | null> {
+    const result = await this.productModel.deleteOne({ slug, gsic });
 
-    if (!product) {
-      throw new ProductException('Product not found', HttpStatus.NOT_FOUND);
+    if (result.deletedCount === 0) {
+      throw new ProductException(
+        'Produto não encontrado',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    return await this.productModel.deleteOne({ _id: product._id });
+    return result;
   }
 
   async update(
