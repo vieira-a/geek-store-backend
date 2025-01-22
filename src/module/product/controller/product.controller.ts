@@ -1,18 +1,20 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
-import { Product } from '../schema/product.schema';
 import { ProductDto } from '../dto/product.dto';
 import { ProductException } from '../exception/product.exception';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
+import { Response } from 'express';
 
 @Controller('products')
 export class ProductController {
@@ -50,5 +52,23 @@ export class ProductController {
     }
 
     return product;
+  }
+
+  @Delete(':slug/:gsic')
+  async deleteProduct(
+    @Param('slug') slug: string,
+    @Param('gsic') gsic: string,
+    @Res() res: Response,
+  ) {
+    const result = await this.productService.delete(slug, gsic);
+
+    if (result.deletedCount === 0) {
+      throw new ProductException(
+        'Exclusão não processada',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
+    }
+
+    return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

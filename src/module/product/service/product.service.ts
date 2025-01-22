@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schema/product.schema';
-import { Model } from 'mongoose';
+import { DeleteResult, Model } from 'mongoose';
 import { ProductDto } from '../dto/product.dto';
 import { plainToInstance } from 'class-transformer';
 import { CreateProductDto } from '../dto/create-product.dto';
@@ -10,6 +10,7 @@ import { generateInternalCode } from 'src/module/shared/helper/generate-internal
 import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
 import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
 import { PageMetaDto } from 'src/module/shared/pagination/dto/page-meta.dto';
+import { ProductException } from '../exception/product.exception';
 @Injectable()
 export class ProductService {
   constructor(
@@ -76,5 +77,15 @@ export class ProductService {
     return plainToInstance(ProductDto, product, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async delete(slug: string, gsic: string): Promise<DeleteResult> {
+    const product = await this.productModel.findOne({ slug, gsic });
+
+    if (!product) {
+      throw new ProductException('Product not found', HttpStatus.NOT_FOUND);
+    }
+
+    return await this.productModel.deleteOne({ _id: product._id });
   }
 }
