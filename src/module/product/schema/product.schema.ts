@@ -29,3 +29,4 @@ export class Product extends Document {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+ProductSchema.index({ slug: 1, gsic: 1 }, { unique: true });
