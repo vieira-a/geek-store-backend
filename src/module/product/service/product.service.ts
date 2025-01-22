@@ -11,6 +11,7 @@ import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dt
 import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
 import { PageMetaDto } from 'src/module/shared/pagination/dto/page-meta.dto';
 import { ProductException } from '../exception/product.exception';
+import { UpdateProductDto } from '../dto/update-product.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -87,5 +88,28 @@ export class ProductService {
     }
 
     return await this.productModel.deleteOne({ _id: product._id });
+  }
+
+  async update(
+    slug: string,
+    gsic: string,
+    updataProductDto: UpdateProductDto,
+  ): Promise<ProductDto> {
+    const product = await this.productModel.findOneAndUpdate(
+      { slug, gsic },
+      updataProductDto,
+      { new: true },
+    );
+
+    if (!product) {
+      throw new ProductException(
+        'Produto não encontrado',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return plainToInstance(ProductDto, product, {
+      excludeExtraneousValues: true,
+    });
   }
 }

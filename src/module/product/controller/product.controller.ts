@@ -5,6 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   Res,
@@ -15,6 +16,7 @@ import { ProductException } from '../exception/product.exception';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
 import { Response } from 'express';
+import { UpdateProductDto } from '../dto/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -70,5 +72,22 @@ export class ProductController {
     }
 
     return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @Patch(':slug/:gsic')
+  async updateProduct(
+    @Param('slug') slug: string,
+    @Param('gsic') gsic: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    const product = await this.productService.update(
+      slug,
+      gsic,
+      updateProductDto,
+    );
+
+    if (product) {
+      return product;
+    }
   }
 }
