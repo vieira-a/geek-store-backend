@@ -1,14 +1,21 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './schema/product.schema';
 import { ProductService } from './service/product.service';
 import { ProductController } from './controller/product.controller';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
   ],
-  providers: [ProductService],
+  providers: [
+    ProductService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
   controllers: [ProductController],
 })
 export class ProductModule {}

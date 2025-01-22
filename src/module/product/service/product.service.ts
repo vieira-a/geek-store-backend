@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schema/product.schema';
 import { Model } from 'mongoose';
+import { ProductDto } from '../dto/product.dto';
+import { plainToClass, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductService {
@@ -14,15 +16,20 @@ export class ProductService {
     return createdProduct.save();
   }
 
-  async findAll(): Promise<Product[] | null> {
-    return await this.productModel.find();
+  async findAll(): Promise<ProductDto[] | null> {
+    const products = await this.productModel.find();
+    return plainToInstance(ProductDto, products, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findBySlugAndInternalCode(
     slug: string,
     gsic: string,
-  ): Promise<Product | null> {
+  ): Promise<ProductDto | null> {
     const product = await this.productModel.findOne({ slug, gsic });
-    return product;
+    return plainToInstance(ProductDto, product, {
+      excludeExtraneousValues: true,
+    });
   }
 }
