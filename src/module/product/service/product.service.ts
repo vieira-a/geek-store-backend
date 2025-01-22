@@ -17,4 +17,12 @@ export class ProductService {
   async findAll(): Promise<Product[] | null> {
     return await this.productModel.find();
   }
+
+  async findBySlugAndInternalCode(
+    slug: string,
+    gsic: string,
+  ): Promise<Product | null> {
+    const product = await this.productModel.findOne({ slug, gsic });
+    return product;
+  }
 }

@@ -18,4 +18,12 @@ export class ProductController {
   ): Promise<Product[] | null> {
     return this.productService.findAll();
   }
+
+  @Get(':slug/:gsic')
+  async findProductBySlugAndGsic(
+    @Param('slug') slug: string,
+    @Param('gsic') gsic: string,
+  ): Promise<Product | null> {
+    return this.productService.findBySlugAndInternalCode(slug, gsic);
+  }
 }
