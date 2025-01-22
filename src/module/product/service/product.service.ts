@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schema/product.schema';
 import { Model } from 'mongoose';
@@ -7,8 +7,9 @@ import { plainToInstance } from 'class-transformer';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { generateSlug } from 'src/module/shared/helper/generate-slug.helper';
 import { generateInternalCode } from 'src/module/shared/helper/generate-internal-code.helper';
-import { ProductException } from '../exception/product.exception';
-
+import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
+import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
+import { PageMetaDto } from 'src/module/shared/pagination/dto/page-meta.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -48,11 +49,23 @@ export class ProductService {
     });
   }
 
-  async findAll(): Promise<ProductDto[] | null> {
-    const products = await this.productModel.find();
-    return plainToInstance(ProductDto, products, {
-      excludeExtraneousValues: true,
-    });
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<ProductDto> | any> {
+    const query = await this.productModel
+      .find()
+      .sort({ createdAt: pageOptionsDto.order ?? 'desc' })
+      .skip(pageOptionsDto.skip)
+      .limit(pageOptionsDto.take ?? 10);
+
+    const itemCount = await this.productModel.countDocuments();
+    const products = query;
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+    return new PageDto(
+      plainToInstance(ProductDto, products, { excludeExtraneousValues: true }),
+      pageMetaDto,
+    );
   }
 
   async findBySlugAndInternalCode(

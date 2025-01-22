@@ -21,9 +21,8 @@ export class CreateProductDto {
   @IsNotEmpty({ message: 'Uma categoria deve ser informada para o produto ' })
   category: string;
 
-  @IsUrl({}, { message: 'A URL da imagem do produto é inválida ' })
   @IsNotEmpty({
     message: 'Uma URL deve ser informada para a imagem do produto ',
   })
-  imageURL: string;
+  imageUrl: string;
 }
