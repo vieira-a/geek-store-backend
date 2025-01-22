@@ -39,6 +39,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error = exception.name || error;
     }
 
+    console.log('Exception', exception);
     response.status(status).json({
       statusCode: status,
       message,

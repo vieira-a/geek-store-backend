@@ -3,13 +3,14 @@ import { ProductService } from '../service/product.service';
 import { Product } from '../schema/product.schema';
 import { ProductDto } from '../dto/product.dto';
 import { ProductException } from '../exception/product.exception';
+import { CreateProductDto } from '../dto/create-product.dto';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  async createProduct(@Body() product: Product): Promise<Product> {
+  async createProduct(@Body() product: CreateProductDto): Promise<ProductDto> {
     return this.productService.create(product);
   }
 

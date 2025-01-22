@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from '../schema/product.schema';
 import { Model } from 'mongoose';
 import { ProductDto } from '../dto/product.dto';
-import { plainToClass, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { generateSlug } from 'src/module/shared/helper/generate-slug.helper';
+import { generateInternalCode } from 'src/module/shared/helper/generate-internal-code.helper';
 
 @Injectable()
 export class ProductService {
@@ -11,9 +14,22 @@ export class ProductService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(product: Product): Promise<Product> {
-    const createdProduct = new this.productModel(product);
-    return createdProduct.save();
+  async create(product: CreateProductDto): Promise<ProductDto> {
+    const generatedSlug = generateSlug(product.name);
+    const generatedInternalCode = generateInternalCode('PRT');
+
+    const productData = {
+      ...product,
+      slug: generatedSlug,
+      gsic: generatedInternalCode,
+    };
+
+    const createdProduct = new this.productModel(productData);
+    const savedProduct = await createdProduct.save();
+
+    return plainToInstance(ProductDto, savedProduct, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findAll(): Promise<ProductDto[] | null> {
