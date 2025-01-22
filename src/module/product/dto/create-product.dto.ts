@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsPositive, IsUrl, isURL } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsPositive,
+  IsUrl,
+  isURL,
+  Min,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty({ message: 'Um nome deve ser informado para o produto ' })
@@ -12,6 +19,12 @@ export class CreateProductDto {
 
   @IsPositive({
     message: 'A quantidade do produto em estoque deve ser positivo ',
+  })
+  @IsInt({
+    message: 'A quantidade do produto em estoque deve ser um número inteiro ',
+  })
+  @Min(0, {
+    message: 'A quantidade do produto em estoque deve ser no mínimo 0 ',
   })
   @IsNotEmpty({
     message: 'A quantidade do produto em estoque deve ser informada ',
