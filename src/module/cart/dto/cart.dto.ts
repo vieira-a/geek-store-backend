@@ -1,5 +1,4 @@
 import { Expose } from 'class-transformer';
-import { CartStatus } from '../constant/cart-status';
 
 export class CartDtoItems {
   gsic: string;

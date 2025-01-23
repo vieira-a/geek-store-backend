@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types, Document } from 'mongoose';
-import { CartStatus } from '../constant/cart-status';
+import { Document } from 'mongoose';
 
 class CartItem {
   @Prop()
@@ -35,7 +34,11 @@ export class Cart extends Document {
   @Prop({ required: true, type: Number, default: 0 })
   totalPrice: number;
 
-  @Prop({ required: true, type: String, default: `active` })
+  @Prop({
+    required: true,
+    enum: ['active', 'abandoned', 'completed'],
+    default: 'active',
+  })
   status: string;
 }
 
