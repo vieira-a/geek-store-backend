@@ -10,8 +10,9 @@ import { Model } from 'mongoose';
 import { ProductServiceInterface } from 'src/module/product/interface/product-service.interface';
 import { CreateCartDto } from '../dto/create-cart.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { CartDto } from '../dto/cart.dto';
+import { CartDto, CartDtoItems } from '../dto/cart.dto';
 import { CartException } from '../exception/cart.exception';
+import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper';
 @Injectable()
 export class CartService {
   constructor(
@@ -23,13 +24,8 @@ export class CartService {
   async create(createCartDto: CreateCartDto): Promise<CartDto> {
     const cartItems = createCartDto.items;
 
-    const items: {
-      gsic: string;
-      name: string;
-      price: number;
-      quantity: number;
-      subtotal: number;
-    }[] = [];
+    const items: CartDtoItems[] = [];
+
     let totalItems = 0;
     let totalPrice = 0;
 
@@ -73,19 +69,6 @@ export class CartService {
 
     const createdCart = await cart.save();
 
-    return {
-      sessionId: createdCart.sessionId,
-      items: createdCart.items.map((item) => {
-        return {
-          gsic: item.gsic,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          subtotal: item.subtotal,
-        };
-      }),
-      totalItems: createdCart.totalItems,
-      totalPrice: createdCart.totalPrice,
-    };
+    return mapCreateCartDtoToCart(createdCart);
   }
 }
