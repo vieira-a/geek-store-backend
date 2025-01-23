@@ -102,24 +102,6 @@ describe('CartService', () => {
     service = module.get<CartService>(CartService);
     productService = module.get<ProductServiceStub>('ProductService');
   });
-  //   jest
-  //     .spyOn(productServiceMock, 'findBySlugAndInternalCode')
-  //     .mockResolvedValue(productsMock[0]);
-
-  //   await service.create(createCartDto);
-
-  //   expect(productServiceMock.findBySlugAndInternalCode).toHaveBeenCalledTimes(
-  //     2,
-  //   );
-  //   expect(productServiceMock.findBySlugAndInternalCode).toHaveBeenCalledWith(
-  //     'product-123',
-  //     '123',
-  //   );
-  //   expect(productServiceMock.findBySlugAndInternalCode).toHaveBeenCalledWith(
-  //     'product-456',
-  //     '456',
-  //   );
-  // });
 
   it('should throw an error if product stock is insufficient', async () => {
     jest
