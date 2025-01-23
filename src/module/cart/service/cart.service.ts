@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from '../schema/cart.schema';
 import { Model } from 'mongoose';
-import { ProductServiceInterface } from 'src/module/product/interface/product-service.interface';
+import { ProductServiceInterface } from '../../../module/product/interface/product-service.interface';
 import { CreateCartDto } from '../dto/create-cart.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CartDto, CartDtoItems } from '../dto/cart.dto';
@@ -41,7 +41,7 @@ export class CartService {
 
       if (product.stock < cartItem.quantity) {
         throw new CartException(
-          `Produto ${product.name} sem estoque suficiente`,
+          `Produto sem estoque suficiente`,
           HttpStatus.BAD_REQUEST,
         );
       }
