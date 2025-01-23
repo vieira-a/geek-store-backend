@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from '../schema/cart.schema';
 import { Model } from 'mongoose';
@@ -6,6 +11,7 @@ import { ProductServiceInterface } from 'src/module/product/interface/product-se
 import { CreateCartDto } from '../dto/create-cart.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { CartDto } from '../dto/cart.dto';
+import { CartException } from '../exception/cart.exception';
 @Injectable()
 export class CartService {
   constructor(
@@ -34,7 +40,14 @@ export class CartService {
       );
 
       if (!product) {
-        throw new NotFoundException(`Produto não encontrado`);
+        throw new CartException(`Produto não encontrado`, HttpStatus.NOT_FOUND);
+      }
+
+      if (product.stock < cartItem.quantity) {
+        throw new CartException(
+          `Produto ${product.name} sem estoque suficiente`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       const itemTotalPrice = cartItem.quantity * product.price;
