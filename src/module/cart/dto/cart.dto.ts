@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { CartStatus } from '../constant/cart-status';
 
 export class CartDtoItems {
   gsic: string;
@@ -12,6 +13,9 @@ export class CartDto {
   sessionId: string;
 
   @Expose()
+  gsic: string;
+
+  @Expose()
   items: CartDtoItems[];
 
   @Expose()
@@ -19,4 +23,7 @@ export class CartDto {
 
   @Expose()
   totalPrice: number;
+
+  @Expose()
+  status: string;
 }

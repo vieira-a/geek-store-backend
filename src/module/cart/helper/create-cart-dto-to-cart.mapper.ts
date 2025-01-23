@@ -14,8 +14,10 @@ export const mapCreateCartDtoToCart = (cart: Cart): CartDto => {
 
   return {
     sessionId: cart.sessionId,
+    gsic: cart.gsic,
     items,
     totalItems: cart.totalItems,
     totalPrice: cart.totalPrice,
+    status: cart.status,
   };
 };

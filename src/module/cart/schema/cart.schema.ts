@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types, Document } from 'mongoose';
+import { CartStatus } from '../constant/cart-status';
 
 class CartItem {
   @Prop()
@@ -22,6 +23,9 @@ export class Cart extends Document {
   @Prop({ required: true, type: String })
   sessionId: string;
 
+  @Prop({ required: true, type: String })
+  gsic: string;
+
   @Prop({ type: [CartItem] })
   items: CartItem[];
 
@@ -30,6 +34,9 @@ export class Cart extends Document {
 
   @Prop({ required: true, type: Number, default: 0 })
   totalPrice: number;
+
+  @Prop({ required: true, type: String, default: `active` })
+  status: string;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

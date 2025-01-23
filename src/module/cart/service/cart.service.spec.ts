@@ -66,6 +66,7 @@ const productServiceMock = {
 
 const cartMock = {
   sessionId: 'mock-session-id',
+  gsic: 'mock-gsic',
   items: [
     {
       gsic: '123',
@@ -84,6 +85,7 @@ const cartMock = {
   ],
   totalItems: 5,
   totalPrice: 800,
+  status: 'active',
 };
 
 describe('CartService', () => {
@@ -153,9 +155,11 @@ describe('CartService', () => {
 
     expect(cartModelMock.create).toHaveBeenCalledWith({
       sessionId: expect.any(String),
+      gsic: expect.any(String),
       items: cartMock.items,
       totalItems: cartMock.totalItems,
       totalPrice: cartMock.totalPrice,
+      status: cartMock.status,
     });
 
     expect(result).toEqual(cartMock);

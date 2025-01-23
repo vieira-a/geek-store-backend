@@ -1,9 +1,4 @@
-import {
-  HttpStatus,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from '../schema/cart.schema';
 import { Model } from 'mongoose';
@@ -13,6 +8,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { CartDto, CartDtoItems } from '../dto/cart.dto';
 import { CartException } from '../exception/cart.exception';
 import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper';
+import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
+
 @Injectable()
 export class CartService {
   constructor(
@@ -60,11 +57,14 @@ export class CartService {
       totalPrice += itemTotalPrice;
     }
 
+    const cartGsic = generateInternalCode('CAT');
     const cart = await this.cartModel.create({
       sessionId: uuidv4(),
+      gsic: cartGsic,
       items,
       totalItems,
       totalPrice,
+      status: 'active',
     });
 
     const createdCart = await cart.save();
