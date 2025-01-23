@@ -12,8 +12,9 @@ import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
 import { PageMetaDto } from 'src/module/shared/pagination/dto/page-meta.dto';
 import { ProductException } from '../exception/product.exception';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { ProductServiceInterface } from '../interface/product-service.interface';
 @Injectable()
-export class ProductService {
+export class ProductService implements ProductServiceInterface {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
@@ -51,9 +52,7 @@ export class ProductService {
     });
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductDto> | any> {
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<ProductDto>> {
     const query = await this.productModel
       .find()
       .sort({ createdAt: pageOptionsDto.order ?? 'desc' })
@@ -65,7 +64,9 @@ export class ProductService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
     return new PageDto(
-      plainToInstance(ProductDto, products, { excludeExtraneousValues: true }),
+      plainToInstance(ProductDto, products.length ? products : [], {
+        excludeExtraneousValues: true,
+      }),
       pageMetaDto,
     );
   }
