@@ -1,28 +1,29 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
+class CartItem {
+  @Prop()
+  gsic: string;
+
+  @Prop()
+  name: string;
+
+  @Prop()
+  price: number;
+
+  @Prop()
+  quantity: number;
+
+  @Prop()
+  subtotal: number;
+}
 @Schema({ timestamps: true })
-export class Cart {
+export class Cart extends Document {
   @Prop({ required: true, type: String })
   sessionId: string;
 
-  @Prop({
-    required: true,
-    type: [
-      {
-        gsic: { type: String, required: true },
-        name: { type: String, required: true },
-        price: { type: Number, required: true },
-        quantity: { type: Number, required: true },
-      },
-    ],
-  })
-  items: Array<{
-    gsic: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }>[];
+  @Prop({ type: [CartItem] })
+  items: CartItem[];
 
   @Prop({ required: true, type: Number, default: 0 })
   totalItems: number;
