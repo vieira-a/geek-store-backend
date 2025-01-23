@@ -127,7 +127,7 @@ describe('CartService', () => {
       }),
     ).rejects.toThrow(
       new CartException(
-        'Produto sem estoque suficiente',
+        'Produto Product 123 sem estoque suficiente',
         HttpStatus.BAD_REQUEST,
       ),
     );

@@ -41,7 +41,7 @@ export class CartService {
 
       if (product.stock < cartItem.quantity) {
         throw new CartException(
-          `Produto sem estoque suficiente`,
+          `Produto ${product.name} sem estoque suficiente`,
           HttpStatus.BAD_REQUEST,
         );
       }
