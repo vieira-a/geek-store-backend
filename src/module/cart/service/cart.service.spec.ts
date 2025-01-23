@@ -22,13 +22,11 @@ const createCartDto = {
       slug: 'product-123',
       gsic: '123',
       quantity: 2,
-      subtotal: 0,
     },
     {
       slug: 'product-456',
       gsic: '456',
       quantity: 3,
-      subtotal: 0,
     },
   ],
 };
@@ -123,7 +121,6 @@ describe('CartService', () => {
             slug: 'product-123',
             gsic: '123',
             quantity: 2,
-            subtotal: 0,
           },
         ],
       }),
