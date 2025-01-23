@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongoDbModule } from './module/shared/persistence/mongodb/mongodb.module';
+import { ProductModule } from './module/product/product.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { MongoDbModule } from './module/shared/persistence/mongodb/mongodb.modul
       envFilePath: '.env',
     }),
     MongoDbModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
