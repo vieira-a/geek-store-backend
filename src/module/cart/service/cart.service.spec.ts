@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CartService } from './cart.service';
 import { ProductDto } from '../../../module/product/dto/product.dto';
-import { ProductException } from 'src/module/product/exception/product.exception';
 import { CartException } from '../exception/cart.exception';
 import { HttpStatus } from '@nestjs/common';
 
@@ -121,6 +120,36 @@ describe('CartService', () => {
   //     '456',
   //   );
   // });
+
+  it('should throw an error if product stock is insufficient', async () => {
+    jest
+      .spyOn(productServiceMock, 'findBySlugAndInternalCode')
+      .mockImplementation((slug, gsic) => {
+        const product = productsMock.find(
+          (product) => product.slug === slug && product.gsic === gsic,
+        );
+
+        return Promise.resolve({ ...product, stock: 1 } as ProductDto);
+      });
+
+    await expect(
+      service.create({
+        items: [
+          {
+            slug: 'product-123',
+            gsic: '123',
+            quantity: 2,
+            subtotal: 0,
+          },
+        ],
+      }),
+    ).rejects.toThrow(
+      new CartException(
+        'Produto sem estoque suficiente',
+        HttpStatus.BAD_REQUEST,
+      ),
+    );
+  });
 
   it('should create a cart successfully', async () => {
     jest
