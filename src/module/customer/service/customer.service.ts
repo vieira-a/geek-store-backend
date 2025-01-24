@@ -23,6 +23,14 @@ export class CustomerService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const customerExists = await this.customerModel.findOne({
+      email: createCustomerDto.email,
+    });
+
+    if (customerExists) {
+      throw new CustomerException('E-mail já cadastrado', HttpStatus.CONFLICT);
+    }
     const encryptedPassword = await this.cryptographyService.hash(
       createCustomerDto.password,
     );
