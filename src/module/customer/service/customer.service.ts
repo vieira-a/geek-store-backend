@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Customer } from '../schema/customer.schema';
 import { Model } from 'mongoose';
@@ -6,6 +6,7 @@ import { CreateCustomerDto } from '../dto/create-customer.dto';
 import { CustomerDto } from '../dto/customer.dto';
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { CryptographyInterface } from '../../../module/shared/criptography/interface/criptography.interface';
+import { CustomerException } from '../exception/customer.exception';
 
 @Injectable()
 export class CustomerService {
@@ -16,6 +17,12 @@ export class CustomerService {
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<CustomerDto> {
+    if (createCustomerDto.password !== createCustomerDto.passwordConfirmation) {
+      throw new CustomerException(
+        'Senhas não conferem',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const encryptedPassword = await this.cryptographyService.hash(
       createCustomerDto.password,
     );
