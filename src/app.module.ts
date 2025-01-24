@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongoDbModule } from './module/shared/persistence/mongodb/mongodb.module';
 import { ProductModule } from './module/product/product.module';
+import { CartModule } from './module/cart/cart.module';
 
 @Module({
   imports: [
@@ -13,8 +12,9 @@ import { ProductModule } from './module/product/product.module';
     }),
     MongoDbModule,
     ProductModule,
+    CartModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

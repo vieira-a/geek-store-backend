@@ -16,6 +16,7 @@ import { ProductException } from '../exception/product.exception';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
 
 @Controller('products')
 export class ProductController {
@@ -31,9 +32,9 @@ export class ProductController {
   @HttpCode(HttpStatus.OK)
   async findAllProducts(
     @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<ProductDto[] | null> {
+  ): Promise<PageDto<ProductDto>> {
     const product = await this.productService.findAll(pageOptionsDto);
-    if (!product || product.length === 0) {
+    if (!product || product.data.length === 0) {
       throw new ProductException('No products found', HttpStatus.NO_CONTENT);
     }
 

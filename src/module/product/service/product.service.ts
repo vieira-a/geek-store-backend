@@ -5,15 +5,16 @@ import { DeleteResult, Model } from 'mongoose';
 import { ProductDto } from '../dto/product.dto';
 import { plainToInstance } from 'class-transformer';
 import { CreateProductDto } from '../dto/create-product.dto';
-import { generateSlug } from 'src/module/shared/helper/generate-slug.helper';
-import { generateInternalCode } from 'src/module/shared/helper/generate-internal-code.helper';
-import { PageOptionsDto } from 'src/module/shared/pagination/dto/page-options.dto';
-import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
-import { PageMetaDto } from 'src/module/shared/pagination/dto/page-meta.dto';
+import { generateSlug } from '../../../module/shared/helper/generate-slug.helper';
+import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
+import { PageOptionsDto } from '../../../module/shared/pagination/dto/page-options.dto';
+import { PageDto } from '../../../module/shared/pagination/dto/page.dto';
+import { PageMetaDto } from '../../../module/shared/pagination/dto/page-meta.dto';
 import { ProductException } from '../exception/product.exception';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { ProductServiceInterface } from '../interface/product-service.interface';
 @Injectable()
-export class ProductService {
+export class ProductService implements ProductServiceInterface {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
@@ -51,9 +52,7 @@ export class ProductService {
     });
   }
 
-  async findAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductDto> | any> {
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<ProductDto>> {
     const query = await this.productModel
       .find()
       .sort({ createdAt: pageOptionsDto.order ?? 'desc' })
@@ -65,7 +64,9 @@ export class ProductService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
     return new PageDto(
-      plainToInstance(ProductDto, products, { excludeExtraneousValues: true }),
+      plainToInstance(ProductDto, products.length ? products : [], {
+        excludeExtraneousValues: true,
+      }),
       pageMetaDto,
     );
   }
