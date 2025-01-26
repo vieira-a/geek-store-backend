@@ -1,6 +1,6 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cart, CartItem } from '../schema/cart.schema';
+import { Cart } from '../schema/cart.schema';
 import { Model } from 'mongoose';
 import { ProductServiceInterface } from '../../../module/product/interface/product-service.interface';
 import { CreateCartDto } from '../dto/create-cart.dto';
