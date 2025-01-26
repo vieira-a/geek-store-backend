@@ -1,6 +1,6 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cart } from '../schema/cart.schema';
+import { Cart, CartItem } from '../schema/cart.schema';
 import { Model } from 'mongoose';
 import { ProductServiceInterface } from '../../../module/product/interface/product-service.interface';
 import { CreateCartDto } from '../dto/create-cart.dto';
@@ -144,5 +144,27 @@ export class CartService implements CartServiceInterface {
 
   findByGsic(gsic: string): Promise<Cart | null> {
     return this.cartModel.findOne({ gsic }).exec();
+  }
+
+  async recalculateCartItems(items: CartDtoItems[]): Promise<CartDtoItems[]> {
+    const updatedItems: CartDtoItems[] = [];
+
+    for (const item of items) {
+      const product = await this.productService.findByGsic(item.gsic);
+
+      if (!product) {
+        throw new Error(`Produto com GSIC ${item.gsic} não encontrado`);
+      }
+
+      const updatedItem = {
+        ...item,
+        price: product.price,
+        subtotal: product.price * item.quantity,
+      };
+
+      updatedItems.push(updatedItem);
+    }
+
+    return updatedItems;
   }
 }

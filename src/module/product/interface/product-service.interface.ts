@@ -4,6 +4,7 @@ import { ProductDto } from '../dto/product.dto';
 import { PageDto } from 'src/module/shared/pagination/dto/page.dto';
 import { DeleteResult } from 'mongoose';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { Product } from '../schema/product.schema';
 
 export interface ProductServiceInterface {
   create(product: CreateProductDto): Promise<ProductDto>;
@@ -18,4 +19,5 @@ export interface ProductServiceInterface {
     gsic: string,
     updataProductDto: UpdateProductDto,
   ): Promise<ProductDto>;
+  findByGsic(gsic: string): Promise<Product | null>;
 }

@@ -116,4 +116,8 @@ export class ProductService implements ProductServiceInterface {
       excludeExtraneousValues: true,
     });
   }
+
+  async findByGsic(gsic: string): Promise<Product | null> {
+    return this.productModel.findOne({ gsic });
+  }
 }

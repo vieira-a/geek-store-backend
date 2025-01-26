@@ -47,13 +47,25 @@ export class OrderService {
       );
     }
 
+    const updatedItems = await this.cartService.recalculateCartItems(
+      cart.items,
+    );
+    const totalItems = updatedItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+    const totalPrice = updatedItems.reduce(
+      (acc, item) => acc + item.subtotal,
+      0,
+    );
+
     const order = await this.orderModel.create({
       gsic: generateInternalCode('ORR'),
       cartId: cart.id,
       customerId: customer.id,
-      items: cart.items,
-      totalItems: cart.totalItems,
-      totalPrice: cart.totalPrice,
+      items: updatedItems,
+      totalItems,
+      totalPrice,
     });
 
     const savedOrder = await order.save();
