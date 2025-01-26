@@ -10,7 +10,6 @@ import { CartException } from '../exception/cart.exception';
 import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper';
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { UpdateCartDto } from '../dto/update-cart.dto';
-import { CustomerCart } from 'src/module/customer/schema/customer-cart.schema';
 import { CartServiceInterface } from '../interface/cart-service.interface';
 
 @Injectable()
