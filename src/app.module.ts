@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongoDbModule } from './module/shared/persistence/mongodb/mongodb.module';
 import { ProductModule } from './module/product/product.module';
 import { CartModule } from './module/cart/cart.module';
+import { CustomerModule } from './module/customer/customer.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CartModule } from './module/cart/cart.module';
     MongoDbModule,
     ProductModule,
     CartModule,
+    CustomerModule,
   ],
   controllers: [],
   providers: [],
