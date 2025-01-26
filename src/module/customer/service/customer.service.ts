@@ -11,9 +11,10 @@ import { WebTokenInterface } from 'src/module/shared/web-token/interface/web-tok
 import { CustomerCart } from '../schema/customer-cart.schema';
 import { CartServiceInterface } from 'src/module/cart/interface/cart-service.interface';
 import { CreateCustomerCartDto } from '../dto/create-customer-cart.dto';
+import { CustomerServiceInterface } from '../interface/customer-service.interface';
 
 @Injectable()
-export class CustomerService {
+export class CustomerService implements CustomerServiceInterface {
   constructor(
     @InjectModel(Customer.name) private readonly customerModel: Model<Customer>,
     @InjectModel(CustomerCart.name)
@@ -89,6 +90,19 @@ export class CustomerService {
       },
       token,
     };
+  }
+
+  async findCustomerCart(
+    customerId: string,
+    cartId: string,
+  ): Promise<CustomerCart | null> {
+    return await this.customerCartModel.findOne({ customerId, cartId });
+  }
+
+  async findByGsic(gsic: string): Promise<Customer | null> {
+    return await this.customerModel.findOne({
+      gsic,
+    });
   }
 
   async createCustomerCart(

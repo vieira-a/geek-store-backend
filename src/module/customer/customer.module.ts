@@ -21,7 +21,14 @@ import { CartModule } from '../cart/cart.module';
     WebTokenModule,
     CartModule,
   ],
-  providers: [CustomerService],
+  providers: [
+    CustomerService,
+    {
+      provide: 'CustomerService',
+      useClass: CustomerService,
+    },
+  ],
   controllers: [CustomerController],
+  exports: ['CustomerService'],
 })
 export class CustomerModule {}
