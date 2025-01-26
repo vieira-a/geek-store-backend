@@ -8,15 +8,22 @@ import { generateInternalCode } from '../../../module/shared/helper/generate-int
 import { CryptographyInterface } from '../../../module/shared/criptography/interface/criptography.interface';
 import { CustomerException } from '../exception/customer.exception';
 import { WebTokenInterface } from 'src/module/shared/web-token/interface/web-token.inteface';
+import { CustomerCart } from '../schema/customer-cart.schema';
+import { CartServiceInterface } from 'src/module/cart/interface/cart-service.interface';
+import { CreateCustomerCartDto } from '../dto/create-customer-cart.dto';
 
 @Injectable()
 export class CustomerService {
   constructor(
     @InjectModel(Customer.name) private readonly customerModel: Model<Customer>,
+    @InjectModel(CustomerCart.name)
+    private readonly customerCartModel: Model<CustomerCart>,
     @Inject('CryptographyInterface')
     private readonly cryptographyService: CryptographyInterface,
     @Inject('WebTokenInterface')
     private readonly webTokenService: WebTokenInterface,
+    @Inject('CartService')
+    private readonly cartService: CartServiceInterface,
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<CustomerDto> {
@@ -82,5 +89,57 @@ export class CustomerService {
       },
       token,
     };
+  }
+
+  async createCustomerCart(
+    customerCartDto: CreateCustomerCartDto,
+  ): Promise<any> {
+    try {
+      const { customerGsic, cartGsic } = customerCartDto;
+      const customer = await this.customerModel.findOne({
+        gsic: customerGsic,
+      });
+
+      if (!customer) {
+        throw new CustomerException(
+          'Cliente não encontrado',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const cart = await this.cartService.findByGsic(cartGsic);
+
+      if (!cart) {
+        throw new CustomerException(
+          'Carrinho não encontrado',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const existingCustomerCart = await this.customerCartModel.findOne({
+        customerId: customer.id,
+        cartId: cart.id,
+      });
+
+      if (existingCustomerCart) {
+        throw new CustomerException(
+          'Carrinho já vinculado ao cliente',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const customerCart = await this.customerCartModel.create({
+        gsic: generateInternalCode('CCR'),
+        customerId: customer.id,
+        cartId: cart.id,
+        items: cart.items,
+        totalItems: cart.totalItems,
+        totalPrice: cart.totalPrice,
+      });
+
+      return await customerCart.save();
+    } catch (error) {
+      throw error;
+    }
   }
 }
