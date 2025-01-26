@@ -142,13 +142,25 @@ export class CustomerService implements CustomerServiceInterface {
         );
       }
 
+      const updatedItems = await this.cartService.recalculateCartItems(
+        cart.items,
+      );
+      const totalItems = updatedItems.reduce(
+        (acc, item) => acc + item.quantity,
+        0,
+      );
+      const totalPrice = updatedItems.reduce(
+        (acc, item) => acc + item.price,
+        0,
+      );
+
       const customerCart = await this.customerCartModel.create({
         gsic: generateInternalCode('CCR'),
         customerId: customer.id,
         cartId: cart.id,
-        items: cart.items,
-        totalItems: cart.totalItems,
-        totalPrice: cart.totalPrice,
+        items: updatedItems,
+        totalItems,
+        totalPrice,
       });
 
       return await customerCart.save();
