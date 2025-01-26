@@ -156,6 +156,13 @@ export class CartService implements CartServiceInterface {
         throw new Error(`Produto com GSIC ${item.gsic} não encontrado`);
       }
 
+      if (product.stock < item.quantity) {
+        throw new CartException(
+          `Produto ${product.name} sem estoque suficiente`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const updatedItem = {
         ...item,
         price: product.price,
