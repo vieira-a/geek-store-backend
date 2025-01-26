@@ -6,9 +6,11 @@ import { OrderService } from './service/order.service';
 import { CartModule } from '../cart/cart.module';
 import { CustomerModule } from '../customer/customer.module';
 import { OrderController } from './controller/order.controller';
+import { WebTokenModule } from '../shared/web-token/web-token.module';
 
 @Module({
   imports: [
+    WebTokenModule,
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     ProductModule,
     CartModule,

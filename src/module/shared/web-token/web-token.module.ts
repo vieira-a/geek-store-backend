@@ -22,6 +22,6 @@ import { WebTokenService } from './service/web-token.service';
       useClass: WebTokenService,
     },
   ],
-  exports: ['WebTokenInterface'],
+  exports: [WebTokenService, 'WebTokenInterface'],
 })
 export class WebTokenModule {}
