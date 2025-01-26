@@ -12,6 +12,7 @@ import { CustomerCart } from '../schema/customer-cart.schema';
 import { CartServiceInterface } from 'src/module/cart/interface/cart-service.interface';
 import { CreateCustomerCartDto } from '../dto/create-customer-cart.dto';
 import { CustomerServiceInterface } from '../interface/customer-service.interface';
+import { CartDto } from 'src/module/cart/dto/cart.dto';
 
 @Injectable()
 export class CustomerService implements CustomerServiceInterface {
@@ -172,5 +173,12 @@ export class CustomerService implements CustomerServiceInterface {
     } catch (error) {
       throw error;
     }
+  }
+
+  async finishCustomerCart(customerId: string, cartId: string): Promise<void> {
+    await this.customerCartModel.updateOne(
+      { customerId, cartId },
+      { status: 'completed' },
+    );
   }
 }

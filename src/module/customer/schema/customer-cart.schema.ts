@@ -20,6 +20,13 @@ export class CustomerCart {
 
   @Prop({ required: true, type: Number, default: 0 })
   totalPrice: number;
+
+  @Prop({
+    required: true,
+    enum: ['active', 'abandoned', 'completed'],
+    default: 'active',
+  })
+  status: string;
 }
 
 export const CustomerCartSchema = SchemaFactory.createForClass(CustomerCart);
