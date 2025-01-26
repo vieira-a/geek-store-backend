@@ -10,9 +10,11 @@ import { CartException } from '../exception/cart.exception';
 import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper';
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { UpdateCartDto } from '../dto/update-cart.dto';
+import { CustomerCart } from 'src/module/customer/schema/customer-cart.schema';
+import { CartServiceInterface } from '../interface/cart-service.interface';
 
 @Injectable()
-export class CartService {
+export class CartService implements CartServiceInterface {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @Inject('ProductService')
@@ -138,5 +140,9 @@ export class CartService {
 
     const updatedCart = await cart.save();
     return mapCreateCartDtoToCart(updatedCart);
+  }
+
+  findByGsic(gsic: string): Promise<Cart | null> {
+    return this.cartModel.findOne({ gsic }).exec();
   }
 }
