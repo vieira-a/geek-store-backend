@@ -86,57 +86,20 @@ export class CartService implements CartServiceInterface {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);
     }
 
-    const cartItems = updateCartDto.items;
+    const updateItems = updateCartDto.items;
 
-    for (const item of cartItems) {
-      const product = await this.productService.findBySlugAndInternalCode(
-        item.slug,
-        item.gsic,
-      );
+    const recalculatedItems = await this.recalculateCartItems(updateItems);
 
-      if (!product) {
-        throw new CartException(
-          `Produto ${item.slug} não encontrado`,
-          HttpStatus.NOT_FOUND,
-        );
-      }
+    cart.items = recalculatedItems;
 
-      if (product.stock < item.quantity) {
-        throw new CartException(
-          `Produto ${product.name} sem estoque suficiente`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      const cartItem = cart.items.find((i) => i.gsic === item.gsic);
-
-      if (cartItem) {
-        if (item.quantity <= 0) {
-          cart.items = cart.items.filter((i) => i.gsic !== item.gsic);
-        } else {
-          cartItem.quantity = item.quantity;
-          cartItem.subtotal = item.quantity * cartItem.price;
-        }
-      } else if (item.quantity > 0) {
-        cart.items.push({
-          gsic: product.gsic,
-          name: product.name,
-          price: product.price,
-          quantity: item.quantity,
-          subtotal: item.quantity * product.price,
-        });
-      }
-    }
-
-    cart.items = cart.items.filter((cartItem) =>
-      cartItems.some((item) => item.gsic === cartItem.gsic),
+    cart.totalItems = recalculatedItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
     );
-
-    const totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-    const totalPrice = cart.items.reduce((acc, item) => acc + item.subtotal, 0);
-
-    cart.totalItems = totalItems;
-    cart.totalPrice = totalPrice;
+    cart.totalPrice = recalculatedItems.reduce(
+      (acc, item) => acc + item.subtotal,
+      0,
+    );
 
     const updatedCart = await cart.save();
     return mapCreateCartDtoToCart(updatedCart);
