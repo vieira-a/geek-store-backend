@@ -14,4 +14,8 @@ export class CryptographyService implements CryptographyInterface {
     );
     return bcrypt.hash(value, saltRounds || 10);
   }
+
+  async compare(value: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(value, hash);
+  }
 }

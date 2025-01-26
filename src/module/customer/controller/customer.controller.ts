@@ -11,4 +11,10 @@ export class CustomerController {
   async createCustomer(@Body() createCustomerDto: CreateCustomerDto) {
     return await this.customerService.create(createCustomerDto);
   }
+
+  @Post('signin')
+  @HttpCode(HttpStatus.OK)
+  async signin(@Body() loginDto: { email: string; password: string }) {
+    return await this.customerService.login(loginDto.email, loginDto.password);
+  }
 }
