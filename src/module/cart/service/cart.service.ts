@@ -104,8 +104,16 @@ export class CartService implements CartServiceInterface {
     return mapCreateCartDtoToCart(updatedCart);
   }
 
+  async delete(cartId: string): Promise<void> {
+    await this.cartModel.deleteOne({ _id: cartId }).exec();
+  }
+
   async findById(cartId: string): Promise<Cart | null> {
     return this.cartModel.findById(cartId).exec();
+  }
+
+  async findBySessionId(sessionId: string): Promise<Cart | null> {
+    return this.cartModel.findOne({ sessionId }).exec();
   }
 
   async findByGsic(gsic: string): Promise<Cart | null> {
