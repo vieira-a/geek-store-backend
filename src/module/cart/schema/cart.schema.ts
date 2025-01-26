@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-class CartItem {
+export class CartItem {
   @Prop()
   gsic: string;
 
