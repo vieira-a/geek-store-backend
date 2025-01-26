@@ -163,6 +163,10 @@ export class CustomerService implements CustomerServiceInterface {
         totalPrice,
       });
 
+      await this.cartService.update(cart.sessionId, cart.gsic, {
+        items: updatedItems,
+      });
+
       return await customerCart.save();
     } catch (error) {
       throw error;
