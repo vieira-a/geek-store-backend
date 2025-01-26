@@ -20,4 +20,5 @@ export interface ProductServiceInterface {
     updataProductDto: UpdateProductDto,
   ): Promise<ProductDto>;
   findByGsic(gsic: string): Promise<Product | null>;
+  decreaseStock(gsic: string, quantity: number): Promise<void>;
 }

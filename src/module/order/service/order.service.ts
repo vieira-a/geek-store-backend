@@ -69,6 +69,12 @@ export class OrderService {
     });
 
     const savedOrder = await order.save();
+
+    if (savedOrder) {
+      for (const item of updatedItems) {
+        await this.productService.decreaseStock(item.gsic, item.quantity);
+      }
+    }
     return savedOrder;
   }
 }
