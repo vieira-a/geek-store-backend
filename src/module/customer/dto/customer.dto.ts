@@ -3,9 +3,12 @@ export class CustomerDto {
   gsic: string;
 }
 
-export class CustomerAuthenticatedDto {
+class CustomerData {
   name: string;
   gsic: string;
   email: string;
+}
+export class CustomerAuthenticatedDto {
+  customer: CustomerData;
   token: string;
 }

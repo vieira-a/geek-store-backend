@@ -75,9 +75,11 @@ export class CustomerService {
 
     const token = await this.webTokenService.sign({ email: customer.email });
     return {
-      name: customer.name,
-      email: customer.email,
-      gsic: customer.gsic,
+      customer: {
+        name: customer.name,
+        gsic: customer.gsic,
+        email: customer.email,
+      },
       token,
     };
   }
