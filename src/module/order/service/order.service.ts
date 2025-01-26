@@ -59,6 +59,15 @@ export class OrderService {
       0,
     );
 
+    const orderExists = await this.orderModel.findOne({ cartId: cart.id });
+
+    if (orderExists) {
+      throw new OrderException(
+        'Pedido de compra já existe',
+        HttpStatus.CONFLICT,
+      );
+    }
+
     const order = await this.orderModel.create({
       gsic: generateInternalCode('ORR'),
       cartId: cart.id,
