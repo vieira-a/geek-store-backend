@@ -145,12 +145,13 @@ export class CustomerService implements CustomerServiceInterface {
       const updatedItems = await this.cartService.recalculateCartItems(
         cart.items,
       );
+
       const totalItems = updatedItems.reduce(
         (acc, item) => acc + item.quantity,
         0,
       );
       const totalPrice = updatedItems.reduce(
-        (acc, item) => acc + item.price,
+        (acc, item) => acc + item.subtotal,
         0,
       );
 
