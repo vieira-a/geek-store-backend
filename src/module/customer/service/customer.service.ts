@@ -13,6 +13,9 @@ import { CartServiceInterface } from 'src/module/cart/interface/cart-service.int
 import { CreateCustomerCartDto } from '../dto/create-customer-cart.dto';
 import { CustomerServiceInterface } from '../interface/customer-service.interface';
 import { CartDto } from 'src/module/cart/dto/cart.dto';
+import { mapCreateCartDtoToCart } from 'src/module/cart/helper/create-cart-dto-to-cart.mapper';
+import { Cart } from 'src/module/cart/schema/cart.schema';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CustomerService implements CustomerServiceInterface {
@@ -180,5 +183,35 @@ export class CustomerService implements CustomerServiceInterface {
       { customerId, cartId },
       { status: 'completed' },
     );
+  }
+
+  async findActiveCustomerCart(customerGsic: string): Promise<CartDto | null> {
+    const customer = await this.customerModel.findOne({ gsic: customerGsic });
+
+    if (!customer) {
+      throw new CustomerException(
+        'Cliente não encontrado',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const customerCart = await this.customerCartModel.findOne({
+      customerId: customer.id,
+      status: 'active',
+    });
+
+    console.log(customerCart);
+
+    if (!customerCart) {
+      return null;
+    }
+
+    const cart = await this.cartService.findById(customerCart.cartId);
+
+    if (!cart) {
+      return null;
+    }
+
+    return plainToInstance(CartDto, cart, { excludeExtraneousValues: true });
   }
 }

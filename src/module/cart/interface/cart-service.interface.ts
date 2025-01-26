@@ -10,6 +10,7 @@ export interface CartServiceInterface {
     gsic: string,
     updateCartDto: UpdateCartDto,
   ): Promise<CartDto>;
+  findById(cartId: string): Promise<CartDto | null>;
   findByGsic(gsic: string): Promise<Cart | null>;
   recalculateCartItems(items: CartDtoItems[]): Promise<CartDtoItems[]>;
   finishCart(cartId: string): Promise<void>;

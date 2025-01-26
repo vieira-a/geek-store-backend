@@ -12,4 +12,5 @@ export interface CustomerServiceInterface {
   ): Promise<CustomerCart | null>;
   findByGsic(gsic: string): Promise<Customer | null>;
   finishCustomerCart(customerId: string, cartId: string): Promise<void>;
+  findActiveCustomerCart(customerId: string): Promise<CartDto | null>;
 }

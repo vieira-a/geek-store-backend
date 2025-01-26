@@ -104,7 +104,11 @@ export class CartService implements CartServiceInterface {
     return mapCreateCartDtoToCart(updatedCart);
   }
 
-  findByGsic(gsic: string): Promise<Cart | null> {
+  async findById(cartId: string): Promise<Cart | null> {
+    return this.cartModel.findById(cartId).exec();
+  }
+
+  async findByGsic(gsic: string): Promise<Cart | null> {
     return this.cartModel.findOne({ gsic }).exec();
   }
 
@@ -139,5 +143,9 @@ export class CartService implements CartServiceInterface {
 
   async finishCart(cartId: string): Promise<void> {
     await this.cartModel.updateOne({ _id: cartId }, { status: 'completed' });
+  }
+
+  async findActiveCartBySessionId(sessionId: string): Promise<CartDto | null> {
+    return await this.cartModel.findOne({ sessionId, status: 'active' }).exec();
   }
 }
