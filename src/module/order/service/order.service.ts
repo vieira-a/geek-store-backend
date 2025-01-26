@@ -82,6 +82,7 @@ export class OrderService {
     if (savedOrder) {
       for (const item of updatedItems) {
         await this.productService.decreaseStock(item.gsic, item.quantity);
+        await this.cartService.finishCart(savedOrder.cartId);
       }
     }
     return savedOrder;

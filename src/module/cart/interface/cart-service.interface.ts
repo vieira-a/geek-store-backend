@@ -12,4 +12,5 @@ export interface CartServiceInterface {
   ): Promise<CartDto>;
   findByGsic(gsic: string): Promise<Cart | null>;
   recalculateCartItems(items: CartDtoItems[]): Promise<CartDtoItems[]>;
+  finishCart(cartId: string): Promise<void>;
 }

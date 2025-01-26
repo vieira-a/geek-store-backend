@@ -137,4 +137,8 @@ export class CartService implements CartServiceInterface {
 
     return updatedItems;
   }
+
+  async finishCart(cartId: string): Promise<void> {
+    await this.cartModel.updateOne({ _id: cartId }, { status: 'completed' });
+  }
 }
