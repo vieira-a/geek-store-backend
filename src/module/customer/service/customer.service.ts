@@ -184,7 +184,7 @@ export class CustomerService implements CustomerServiceInterface {
     );
   }
 
-  async mergeCustomerCarts(
+  private async mergeCustomerCarts(
     sessionId: string,
     customerCartId: string,
   ): Promise<void> {
@@ -206,6 +206,19 @@ export class CustomerService implements CustomerServiceInterface {
     );
 
     customerCart.items = mergedItems;
+
+    const totalItems = mergedItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+    const totalPrice = mergedItems.reduce(
+      (acc, item) => acc + item.subtotal,
+      0,
+    );
+
+    customerCart.totalItems = totalItems;
+    customerCart.totalPrice = totalPrice;
+
     await customerCart.save();
 
     await this.cartService.delete(sessionCart.id);
@@ -236,6 +249,12 @@ export class CustomerService implements CustomerServiceInterface {
       return null;
     }
 
+    const sessionCart = await this.cartService.findBySessionId(cart.sessionId);
+
+    if (sessionCart) {
+      await this.mergeCustomerCarts(cart.sessionId, customerCart.id);
+    }
+
     return plainToInstance(CartDto, cart, { excludeExtraneousValues: true });
   }
 
@@ -246,7 +265,7 @@ export class CustomerService implements CustomerServiceInterface {
     const mergedItems = new Map<string, CartItem>();
 
     sessionCartItems.forEach((item) => {
-      mergedItems.set(item.gsic, item);
+      mergedItems.set(item.gsic, { ...item });
     });
 
     customerCartItems.forEach((item) => {
@@ -256,7 +275,7 @@ export class CustomerService implements CustomerServiceInterface {
         existingItem.quantity += item.quantity;
         existingItem.subtotal += item.subtotal;
       } else {
-        mergedItems.set(item.gsic, item);
+        mergedItems.set(item.gsic, { ...item });
       }
     });
 
