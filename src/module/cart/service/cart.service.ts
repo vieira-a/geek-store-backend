@@ -10,9 +10,10 @@ import { CartException } from '../exception/cart.exception';
 import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper';
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { UpdateCartDto } from '../dto/update-cart.dto';
+import { CartServiceInterface } from '../interface/cart-service.interface';
 
 @Injectable()
-export class CartService {
+export class CartService implements CartServiceInterface {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @Inject('ProductService')
@@ -84,19 +85,49 @@ export class CartService {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);
     }
 
-    const cartItems = updateCartDto.items;
+    const updateItems = updateCartDto.items;
 
-    for (const item of cartItems) {
-      const product = await this.productService.findBySlugAndInternalCode(
-        item.slug,
-        item.gsic,
-      );
+    const recalculatedItems = await this.recalculateCartItems(updateItems);
+
+    cart.items = recalculatedItems;
+
+    cart.totalItems = recalculatedItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+    cart.totalPrice = recalculatedItems.reduce(
+      (acc, item) => acc + item.subtotal,
+      0,
+    );
+
+    const updatedCart = await cart.save();
+    return mapCreateCartDtoToCart(updatedCart);
+  }
+
+  async delete(cartId: string): Promise<void> {
+    await this.cartModel.deleteOne({ _id: cartId }).exec();
+  }
+
+  async findById(cartId: string): Promise<Cart | null> {
+    return this.cartModel.findById(cartId).exec();
+  }
+
+  async findBySessionId(sessionId: string): Promise<Cart | null> {
+    return this.cartModel.findOne({ sessionId }).exec();
+  }
+
+  async findByGsic(gsic: string): Promise<Cart | null> {
+    return this.cartModel.findOne({ gsic }).exec();
+  }
+
+  async recalculateCartItems(items: CartDtoItems[]): Promise<CartDtoItems[]> {
+    const updatedItems: CartDtoItems[] = [];
+
+    for (const item of items) {
+      const product = await this.productService.findByGsic(item.gsic);
 
       if (!product) {
-        throw new CartException(
-          `Produto ${item.slug} não encontrado`,
-          HttpStatus.NOT_FOUND,
-        );
+        throw new Error(`Produto com GSIC ${item.gsic} não encontrado`);
       }
 
       if (product.stock < item.quantity) {
@@ -106,37 +137,23 @@ export class CartService {
         );
       }
 
-      const cartItem = cart.items.find((i) => i.gsic === item.gsic);
+      const updatedItem = {
+        ...item,
+        price: product.price,
+        subtotal: product.price * item.quantity,
+      };
 
-      if (cartItem) {
-        if (item.quantity <= 0) {
-          cart.items = cart.items.filter((i) => i.gsic !== item.gsic);
-        } else {
-          cartItem.quantity = item.quantity;
-          cartItem.subtotal = item.quantity * cartItem.price;
-        }
-      } else if (item.quantity > 0) {
-        cart.items.push({
-          gsic: product.gsic,
-          name: product.name,
-          price: product.price,
-          quantity: item.quantity,
-          subtotal: item.quantity * product.price,
-        });
-      }
+      updatedItems.push(updatedItem);
     }
 
-    cart.items = cart.items.filter((cartItem) =>
-      cartItems.some((item) => item.gsic === cartItem.gsic),
-    );
+    return updatedItems;
+  }
 
-    const totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-    const totalPrice = cart.items.reduce((acc, item) => acc + item.subtotal, 0);
+  async finishCart(cartId: string): Promise<void> {
+    await this.cartModel.updateOne({ _id: cartId }, { status: 'completed' });
+  }
 
-    cart.totalItems = totalItems;
-    cart.totalPrice = totalPrice;
-
-    const updatedCart = await cart.save();
-    return mapCreateCartDtoToCart(updatedCart);
+  async findActiveCartBySessionId(sessionId: string): Promise<CartDto | null> {
+    return await this.cartModel.findOne({ sessionId, status: 'active' }).exec();
   }
 }

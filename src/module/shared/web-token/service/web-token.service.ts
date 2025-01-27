@@ -19,4 +19,8 @@ export class WebTokenService implements WebTokenInterface {
       });
     }
   }
+  async verify(token: string): Promise<string | object> {
+    const secret = this.configService.get<string>('JWT_SECRET');
+    return this.jwtService.verify(token, { secret: secret });
+  }
 }

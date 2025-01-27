@@ -4,6 +4,7 @@ import { MongoDbModule } from './module/shared/persistence/mongodb/mongodb.modul
 import { ProductModule } from './module/product/product.module';
 import { CartModule } from './module/cart/cart.module';
 import { CustomerModule } from './module/customer/customer.module';
+import { OrderModule } from './module/order/order.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CustomerModule } from './module/customer/customer.module';
     ProductModule,
     CartModule,
     CustomerModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],

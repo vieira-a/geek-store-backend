@@ -10,7 +10,14 @@ import { Cart, CartSchema } from './schema/cart.schema';
     MongooseModule.forFeature([{ name: Cart.name, schema: CartSchema }]),
     ProductModule,
   ],
-  providers: [CartService],
+  providers: [
+    CartService,
+    {
+      provide: 'CartService',
+      useClass: CartService,
+    },
+  ],
   controllers: [CartController],
+  exports: ['CartService'],
 })
 export class CartModule {}

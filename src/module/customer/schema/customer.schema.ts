@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
-export class Customer {
+export class Customer extends Document {
   @Prop({ required: true, type: String })
   gsic: string;
 

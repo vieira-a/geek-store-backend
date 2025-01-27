@@ -116,4 +116,29 @@ export class ProductService implements ProductServiceInterface {
       excludeExtraneousValues: true,
     });
   }
+
+  async findByGsic(gsic: string): Promise<Product | null> {
+    return this.productModel.findOne({ gsic });
+  }
+
+  async decreaseStock(gsic: string, newQuantity: number): Promise<void> {
+    const product = await this.findByGsic(gsic);
+
+    if (!product) {
+      throw new ProductException(
+        'Produto não encontrado',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (product.stock < newQuantity) {
+      throw new ProductException(
+        'Produto sem estoque suficiente',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    product.stock -= newQuantity;
+    await product.save();
+  }
 }

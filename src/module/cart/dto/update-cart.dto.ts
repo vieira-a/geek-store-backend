@@ -1,7 +1,9 @@
 export class UpdateCartItemDto {
-  slug: string;
   gsic: string;
+  name: string;
+  price: number;
   quantity: number;
+  subtotal: number;
 }
 
 export class UpdateCartDto {

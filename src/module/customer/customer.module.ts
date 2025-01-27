@@ -4,18 +4,31 @@ import { Customer, CustomerSchema } from './schema/customer.schema';
 import { CustomerService } from './service/customer.service';
 import { CustomerController } from './controller/customer.controller';
 import { CriptographyModule } from '../shared/criptography/criptography.module';
-import { JwtModule } from '@nestjs/jwt';
 import { WebTokenModule } from '../shared/web-token/web-token.module';
+import {
+  CustomerCart,
+  CustomerCartSchema,
+} from './schema/customer-cart.schema';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Customer.name, schema: CustomerSchema },
+      { name: CustomerCart.name, schema: CustomerCartSchema },
     ]),
     CriptographyModule,
     WebTokenModule,
+    CartModule,
   ],
-  providers: [CustomerService],
+  providers: [
+    CustomerService,
+    {
+      provide: 'CustomerService',
+      useClass: CustomerService,
+    },
+  ],
   controllers: [CustomerController],
+  exports: ['CustomerService'],
 })
 export class CustomerModule {}
