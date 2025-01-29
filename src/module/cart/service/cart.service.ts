@@ -79,7 +79,7 @@ export class CartService implements CartServiceInterface {
     gsic: string,
     updateCartDto: UpdateCartDto,
   ): Promise<CartDto> {
-    const cart = await this.cartModel.findOne({ sessionId, gsic });
+    const cart = await this.cartModel.findOne({ sessionId, gsic }).exec();
 
     if (!cart) {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);
@@ -87,18 +87,44 @@ export class CartService implements CartServiceInterface {
 
     const updateItems = updateCartDto.items;
 
-    const recalculatedItems = await this.recalculateCartItems(updateItems);
+    const cartItemsMap = new Map(cart.items.map((item) => [item.gsic, item]));
 
-    cart.items = recalculatedItems;
+    for (const item of updateItems) {
+      const product = await this.productService.findByGsic(item.gsic);
 
-    cart.totalItems = recalculatedItems.reduce(
-      (acc, item) => acc + item.quantity,
-      0,
-    );
-    cart.totalPrice = recalculatedItems.reduce(
-      (acc, item) => acc + item.subtotal,
-      0,
-    );
+      if (!product) {
+        throw new CartException(
+          `Produto com GSIC ${item.gsic} não encontrado`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (product.stock < item.quantity) {
+        throw new CartException(
+          `Produto ${product.name} sem estoque suficiente`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      if (cartItemsMap.has(item.gsic)) {
+        const existingItem = cartItemsMap.get(item.gsic);
+        if (existingItem) {
+          existingItem.quantity += item.quantity;
+          existingItem.subtotal = existingItem.quantity * product.price;
+        }
+      } else {
+        cartItemsMap.set(item.gsic, {
+          ...item,
+          price: product.price,
+          subtotal: product.price * item.quantity,
+        });
+      }
+    }
+
+    cart.items = Array.from(cartItemsMap.values());
+
+    cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
+    cart.totalPrice = cart.items.reduce((acc, item) => acc + item.subtotal, 0);
 
     const updatedCart = await cart.save();
     return mapCreateCartDtoToCart(updatedCart);
