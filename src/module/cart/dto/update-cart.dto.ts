@@ -8,6 +8,10 @@ import {
 } from 'class-validator';
 
 export class UpdateCartItemDto {
+  @IsOptional()
+  @IsString()
+  slug: string;
+
   @IsString()
   gsic: string;
 
@@ -15,18 +19,17 @@ export class UpdateCartItemDto {
   @IsString()
   name: string;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   price: number;
 
   @IsNumber()
   quantity: number;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   subtotal: number;
 }
-
 export class UpdateCartDto {
   @IsArray()
   @ValidateNested({ each: true })

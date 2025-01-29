@@ -79,7 +79,7 @@ export class CartService implements CartServiceInterface {
     gsic: string,
     updateCartDto: UpdateCartDto,
   ): Promise<CartDto> {
-    const cart = await this.cartModel.findOne({ sessionId, gsic }).exec();
+    const cart = await this.cartModel.findOne({ sessionId, gsic });
 
     if (!cart) {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);

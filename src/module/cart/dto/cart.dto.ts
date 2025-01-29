@@ -1,10 +1,14 @@
-import { Expose } from 'class-transformer';
+import { Expose, Transform } from 'class-transformer';
 
 export class CartDtoItems {
   gsic: string;
   name: string;
+
+  @Transform(({ value }) => Number(value).toFixed(2))
   price: number;
   quantity: number;
+
+  @Transform(({ value }) => Number(value).toFixed(2))
   subtotal: number;
 }
 export class CartDto {
@@ -21,6 +25,7 @@ export class CartDto {
   totalItems: number;
 
   @Expose()
+  @Transform(({ value }) => Number(value).toFixed(2))
   totalPrice: number;
 
   @Expose()
