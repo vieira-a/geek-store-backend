@@ -16,6 +16,9 @@ export class CartItem {
 
   @Prop()
   subtotal: number;
+
+  @Prop()
+  imageUrl: string;
 }
 @Schema({ timestamps: true })
 export class Cart extends Document {

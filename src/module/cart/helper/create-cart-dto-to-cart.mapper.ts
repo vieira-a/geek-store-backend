@@ -9,6 +9,7 @@ export const mapCreateCartDtoToCart = (cart: Cart): CartDto => {
       price: item.price,
       quantity: item.quantity,
       subtotal: item.subtotal,
+      imageUrl: item.imageUrl,
     };
   });
 

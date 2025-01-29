@@ -10,6 +10,8 @@ export class CartDtoItems {
 
   @Transform(({ value }) => Number(value).toFixed(2))
   subtotal: number;
+
+  imageUrl: string;
 }
 export class CartDto {
   @Expose()
