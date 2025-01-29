@@ -6,6 +6,9 @@ export class CartItem {
   gsic: string;
 
   @Prop()
+  slug: string;
+
+  @Prop()
   name: string;
 
   @Prop()
@@ -16,6 +19,9 @@ export class CartItem {
 
   @Prop()
   subtotal: number;
+
+  @Prop()
+  imageUrl: string;
 }
 @Schema({ timestamps: true })
 export class Cart extends Document {

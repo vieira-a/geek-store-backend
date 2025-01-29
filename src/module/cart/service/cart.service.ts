@@ -11,6 +11,7 @@ import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { UpdateCartDto } from '../dto/update-cart.dto';
 import { CartServiceInterface } from '../interface/cart-service.interface';
+import { parse } from 'node:path';
 
 @Injectable()
 export class CartService implements CartServiceInterface {
@@ -22,9 +23,7 @@ export class CartService implements CartServiceInterface {
 
   async create(createCartDto: CreateCartDto): Promise<CartDto> {
     const cartItems = createCartDto.items;
-
     const items: CartDtoItems[] = [];
-
     let totalItems = 0;
     let totalPrice = 0;
 
@@ -49,10 +48,12 @@ export class CartService implements CartServiceInterface {
 
       items.push({
         gsic: product.gsic,
+        slug: product.slug,
         name: product.name,
-        price: product.price,
+        price: parseFloat(product.price.toFixed(2)),
         quantity: cartItem.quantity,
-        subtotal: cartItem.quantity * product.price,
+        subtotal: parseFloat((cartItem.quantity * product.price).toFixed(2)),
+        imageUrl: product.imageUrl,
       });
 
       totalItems += cartItem.quantity;
@@ -87,18 +88,66 @@ export class CartService implements CartServiceInterface {
 
     const updateItems = updateCartDto.items;
 
-    const recalculatedItems = await this.recalculateCartItems(updateItems);
+    const updatedItems: CartDtoItems[] = [];
 
-    cart.items = recalculatedItems;
+    for (const cartItem of cart.items) {
+      const updateItem = updateItems.find(
+        (item) => item.gsic === cartItem.gsic,
+      );
 
-    cart.totalItems = recalculatedItems.reduce(
+      if (updateItem) {
+        cartItem.quantity = updateItem.quantity;
+        cartItem.subtotal = parseFloat(
+          (cartItem.quantity * cartItem.price).toFixed(2),
+        );
+        updatedItems.push(cartItem);
+      } else {
+        updatedItems.push(cartItem);
+      }
+    }
+
+    for (const item of updateItems) {
+      const itemInCart = cart.items.find(
+        (cartItem) => cartItem.gsic === item.gsic,
+      );
+      if (!itemInCart) {
+        const product = await this.productService.findByGsic(item.gsic);
+
+        if (!product) {
+          throw new CartException(
+            `Produto com GSIC ${item.gsic} não encontrado`,
+            HttpStatus.NOT_FOUND,
+          );
+        }
+
+        updatedItems.push({
+          gsic: item.gsic,
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          quantity: item.quantity,
+          subtotal: parseFloat((product.price * item.quantity).toFixed(2)),
+          imageUrl: product.imageUrl,
+        });
+      }
+    }
+
+    const totalItems = updatedItems.reduce(
       (acc, item) => acc + item.quantity,
       0,
     );
-    cart.totalPrice = recalculatedItems.reduce(
+    const totalPrice = updatedItems.reduce(
       (acc, item) => acc + item.subtotal,
       0,
     );
+
+    cart.items = updatedItems;
+    cart.totalItems = totalItems;
+    cart.totalPrice = parseFloat(totalPrice.toFixed(2));
+
+    cart.markModified('items');
+    cart.markModified('totalItems');
+    cart.markModified('totalPrice');
 
     const updatedCart = await cart.save();
     return mapCreateCartDtoToCart(updatedCart);
@@ -108,8 +157,8 @@ export class CartService implements CartServiceInterface {
     await this.cartModel.deleteOne({ _id: cartId }).exec();
   }
 
-  async findById(cartId: string): Promise<Cart | null> {
-    return this.cartModel.findById(cartId).exec();
+  async findById(cartId: string): Promise<any> {
+    return await this.cartModel.findById(cartId).exec();
   }
 
   async findBySessionId(sessionId: string): Promise<Cart | null> {
@@ -153,7 +202,7 @@ export class CartService implements CartServiceInterface {
     await this.cartModel.updateOne({ _id: cartId }, { status: 'completed' });
   }
 
-  async findActiveCartBySessionId(sessionId: string): Promise<CartDto | null> {
+  async findActiveCartBySessionId(sessionId: string): Promise<Cart | null> {
     return await this.cartModel.findOne({ sessionId, status: 'active' }).exec();
   }
 }

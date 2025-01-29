@@ -21,4 +21,7 @@ export class ProductDto {
 
   @Expose()
   category: string;
+
+  @Expose()
+  imageUrl: string;
 }

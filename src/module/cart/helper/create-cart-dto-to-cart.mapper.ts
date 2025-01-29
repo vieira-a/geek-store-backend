@@ -5,10 +5,12 @@ export const mapCreateCartDtoToCart = (cart: Cart): CartDto => {
   const items: CartDtoItems[] = cart.items.map((item) => {
     return {
       gsic: item.gsic,
+      slug: item.slug,
       name: item.name,
       price: item.price,
       quantity: item.quantity,
       subtotal: item.subtotal,
+      imageUrl: item.imageUrl,
     };
   });
 
