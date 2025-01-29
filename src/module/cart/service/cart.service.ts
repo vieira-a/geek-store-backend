@@ -11,6 +11,7 @@ import { mapCreateCartDtoToCart } from '../helper/create-cart-dto-to-cart.mapper
 import { generateInternalCode } from '../../../module/shared/helper/generate-internal-code.helper';
 import { UpdateCartDto } from '../dto/update-cart.dto';
 import { CartServiceInterface } from '../interface/cart-service.interface';
+import { parse } from 'node:path';
 
 @Injectable()
 export class CartService implements CartServiceInterface {
@@ -47,10 +48,11 @@ export class CartService implements CartServiceInterface {
 
       items.push({
         gsic: product.gsic,
+        slug: product.slug,
         name: product.name,
-        price: product.price,
+        price: parseFloat(product.price.toFixed(2)),
         quantity: cartItem.quantity,
-        subtotal: cartItem.quantity * product.price,
+        subtotal: parseFloat((cartItem.quantity * product.price).toFixed(2)),
         imageUrl: product.imageUrl,
       });
 
@@ -95,7 +97,9 @@ export class CartService implements CartServiceInterface {
 
       if (updateItem) {
         cartItem.quantity = updateItem.quantity;
-        cartItem.subtotal = cartItem.quantity * cartItem.price;
+        cartItem.subtotal = parseFloat(
+          (cartItem.quantity * cartItem.price).toFixed(2),
+        );
         updatedItems.push(cartItem);
       } else {
         updatedItems.push(cartItem);
@@ -118,10 +122,11 @@ export class CartService implements CartServiceInterface {
 
         updatedItems.push({
           gsic: item.gsic,
+          slug: product.slug,
           name: product.name,
           price: product.price,
           quantity: item.quantity,
-          subtotal: product.price * item.quantity,
+          subtotal: parseFloat((product.price * item.quantity).toFixed(2)),
           imageUrl: product.imageUrl,
         });
       }
@@ -138,7 +143,7 @@ export class CartService implements CartServiceInterface {
 
     cart.items = updatedItems;
     cart.totalItems = totalItems;
-    cart.totalPrice = totalPrice;
+    cart.totalPrice = parseFloat(totalPrice.toFixed(2));
 
     cart.markModified('items');
     cart.markModified('totalItems');

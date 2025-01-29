@@ -6,6 +6,9 @@ export class CartItem {
   gsic: string;
 
   @Prop()
+  slug: string;
+
+  @Prop()
   name: string;
 
   @Prop()

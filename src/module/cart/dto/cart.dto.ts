@@ -2,6 +2,9 @@ import { Expose, Transform } from 'class-transformer';
 
 export class CartDtoItems {
   gsic: string;
+
+  slug: string;
+
   name: string;
 
   @Transform(({ value }) => Number(value).toFixed(2))
