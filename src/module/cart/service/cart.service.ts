@@ -22,9 +22,7 @@ export class CartService implements CartServiceInterface {
 
   async create(createCartDto: CreateCartDto): Promise<CartDto> {
     const cartItems = createCartDto.items;
-
     const items: CartDtoItems[] = [];
-
     let totalItems = 0;
     let totalPrice = 0;
 
@@ -86,50 +84,68 @@ export class CartService implements CartServiceInterface {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);
     }
 
+    // Itera sobre os itens do carrinho enviado
     const updateItems = updateCartDto.items;
-    const cartItemsMap = new Map(cart.items.map((item) => [item.gsic, item]));
+
+    // Objeto que vai para o banco
+    const updatedItems: CartDtoItems[] = [];
+
+    // Iterando os itens já existentes no carrinho
+    for (const cartItem of cart.items) {
+      const updateItem = updateItems.find(
+        (item) => item.gsic === cartItem.gsic,
+      );
+
+      if (updateItem) {
+        cartItem.quantity += updateItem.quantity;
+        cartItem.subtotal = cartItem.quantity * cartItem.price;
+        updatedItems.push(cartItem);
+      } else {
+        updatedItems.push(cartItem);
+      }
+    }
 
     for (const item of updateItems) {
-      const product = await this.productService.findByGsic(item.gsic);
+      const itemInCart = cart.items.find(
+        (cartItem) => cartItem.gsic === item.gsic,
+      );
+      if (!itemInCart) {
+        const product = await this.productService.findByGsic(item.gsic);
 
-      if (!product) {
-        throw new CartException(
-          `Produto com GSIC ${item.gsic} não encontrado`,
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      if (product.stock < item.quantity) {
-        throw new CartException(
-          `Produto ${product.name} sem estoque suficiente`,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      if (cartItemsMap.has(item.gsic)) {
-        const existingItem = cartItemsMap.get(item.gsic);
-        if (existingItem) {
-          existingItem.quantity = Math.min(
-            existingItem.quantity + item.quantity,
-            product.stock,
+        if (!product) {
+          throw new CartException(
+            `Produto com GSIC ${item.gsic} não encontrado`,
+            HttpStatus.NOT_FOUND,
           );
-          existingItem.subtotal = existingItem.quantity * product.price;
         }
-      } else {
-        cartItemsMap.set(item.gsic, {
+
+        updatedItems.push({
           gsic: item.gsic,
           name: product.name,
           price: product.price,
-          quantity: Math.min(item.quantity, product.stock),
+          quantity: item.quantity,
           subtotal: product.price * item.quantity,
           imageUrl: product.imageUrl,
         });
       }
     }
 
-    cart.items = Array.from(cartItemsMap.values());
-    cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
-    cart.totalPrice = cart.items.reduce((acc, item) => acc + item.subtotal, 0);
+    const totalItems = updatedItems.reduce(
+      (acc, item) => acc + item.quantity,
+      0,
+    );
+    const totalPrice = updatedItems.reduce(
+      (acc, item) => acc + item.subtotal,
+      0,
+    );
+
+    cart.items = updatedItems;
+    cart.totalItems = totalItems;
+    cart.totalPrice = totalPrice;
+
+    cart.markModified('items');
+    cart.markModified('totalItems');
+    cart.markModified('totalPrice');
 
     const updatedCart = await cart.save();
     return mapCreateCartDtoToCart(updatedCart);
