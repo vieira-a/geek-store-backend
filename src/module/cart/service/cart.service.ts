@@ -53,6 +53,7 @@ export class CartService implements CartServiceInterface {
         price: product.price,
         quantity: cartItem.quantity,
         subtotal: cartItem.quantity * product.price,
+        imageUrl: product.imageUrl,
       });
 
       totalItems += cartItem.quantity;
@@ -86,7 +87,6 @@ export class CartService implements CartServiceInterface {
     }
 
     const updateItems = updateCartDto.items;
-
     const cartItemsMap = new Map(cart.items.map((item) => [item.gsic, item]));
 
     for (const item of updateItems) {
@@ -109,20 +109,25 @@ export class CartService implements CartServiceInterface {
       if (cartItemsMap.has(item.gsic)) {
         const existingItem = cartItemsMap.get(item.gsic);
         if (existingItem) {
-          existingItem.quantity += item.quantity;
+          existingItem.quantity = Math.min(
+            existingItem.quantity + item.quantity,
+            product.stock,
+          );
           existingItem.subtotal = existingItem.quantity * product.price;
         }
       } else {
         cartItemsMap.set(item.gsic, {
-          ...item,
+          gsic: item.gsic,
+          name: product.name,
           price: product.price,
+          quantity: Math.min(item.quantity, product.stock),
           subtotal: product.price * item.quantity,
+          imageUrl: product.imageUrl,
         });
       }
     }
 
     cart.items = Array.from(cartItemsMap.values());
-
     cart.totalItems = cart.items.reduce((acc, item) => acc + item.quantity, 0);
     cart.totalPrice = cart.items.reduce((acc, item) => acc + item.subtotal, 0);
 
@@ -134,8 +139,8 @@ export class CartService implements CartServiceInterface {
     await this.cartModel.deleteOne({ _id: cartId }).exec();
   }
 
-  async findById(cartId: string): Promise<Cart | null> {
-    return this.cartModel.findById(cartId).exec();
+  async findById(cartId: string): Promise<any> {
+    return await this.cartModel.findById(cartId).exec();
   }
 
   async findBySessionId(sessionId: string): Promise<Cart | null> {
@@ -179,7 +184,7 @@ export class CartService implements CartServiceInterface {
     await this.cartModel.updateOne({ _id: cartId }, { status: 'completed' });
   }
 
-  async findActiveCartBySessionId(sessionId: string): Promise<CartDto | null> {
+  async findActiveCartBySessionId(sessionId: string): Promise<Cart | null> {
     return await this.cartModel.findOne({ sessionId, status: 'active' }).exec();
   }
 }
