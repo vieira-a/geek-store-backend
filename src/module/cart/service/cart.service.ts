@@ -84,20 +84,17 @@ export class CartService implements CartServiceInterface {
       throw new CartException('Carrinho não encontrado', HttpStatus.NOT_FOUND);
     }
 
-    // Itera sobre os itens do carrinho enviado
     const updateItems = updateCartDto.items;
 
-    // Objeto que vai para o banco
     const updatedItems: CartDtoItems[] = [];
 
-    // Iterando os itens já existentes no carrinho
     for (const cartItem of cart.items) {
       const updateItem = updateItems.find(
         (item) => item.gsic === cartItem.gsic,
       );
 
       if (updateItem) {
-        cartItem.quantity += updateItem.quantity;
+        cartItem.quantity = updateItem.quantity;
         cartItem.subtotal = cartItem.quantity * cartItem.price;
         updatedItems.push(cartItem);
       } else {
