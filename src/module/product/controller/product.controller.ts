@@ -10,6 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ProductService } from '../service/product.service';
 import { ProductDto } from '../dto/product.dto';
 import { ProductException } from '../exception/product.exception';
@@ -24,12 +25,24 @@ export class ProductController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Criar um novo produto' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Produto criado com sucesso',
+    type: ProductDto,
+  })
   async createProduct(@Body() product: CreateProductDto): Promise<ProductDto> {
     return this.productService.create(product);
   }
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Listar todos os produtos' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Lista de produtos',
+    type: PageDto,
+  })
   async findAllProducts(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ProductDto>> {
@@ -43,6 +56,16 @@ export class ProductController {
 
   @Get(':slug/:gsic')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Buscar produto por slug e gsic' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Produto encontrado',
+    type: ProductDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Produto não encontrado',
+  })
   async findProductBySlugAndGsic(
     @Param('slug') slug: string,
     @Param('gsic') gsic: string,
@@ -61,6 +84,11 @@ export class ProductController {
 
   @Delete(':slug/:gsic')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Excluir um produto' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Produto excluído com sucesso',
+  })
   async deleteProduct(
     @Param('slug') slug: string,
     @Param('gsic') gsic: string,
@@ -79,6 +107,12 @@ export class ProductController {
 
   @Patch(':slug/:gsic')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Atualizar produto' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Produto atualizado',
+    type: ProductDto,
+  })
   async updateProduct(
     @Param('slug') slug: string,
     @Param('gsic') gsic: string,
