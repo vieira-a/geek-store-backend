@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: my-nestjs-app
+    env: node
+    branch: main
+    buildCommand: |
+      npm install
+      npm run build
+    startCommand: |
+      npm run start:prod
+    plan: starter
+    manualDeploy: false
